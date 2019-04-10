@@ -18,12 +18,12 @@ public class KontoGUI extends java.awt.Frame {
     private Account acc;
     private ArrayList<Account> accounts = new ArrayList<Account>();
     private DefaultListModel model = new DefaultListModel<>();
-
+    
     public KontoGUI() {
         initComponents();
         this.acc = new Account("default");
         accounts.add(acc);
-
+        
         this.lbCurrentAcc.setText(acc.getName());
         jList1.setModel(model);
     }
@@ -76,6 +76,7 @@ public class KontoGUI extends java.awt.Frame {
         cbMiDefault.setSelected(true);
         cbMiDefault.setText("Default");
         cbMiDefault.setEnabled(false);
+        cbMiDefault.setName("default"); // NOI18N
         cbMiDefault.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cbMiDefaultItemStateChanged(evt);
@@ -165,9 +166,7 @@ public class KontoGUI extends java.awt.Frame {
     }//GEN-LAST:event_miAddUserActionPerformed
 
     private void miPerformTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPerformTestActionPerformed
-
         new Thread(new Runnable() {
-
             @Override
             public void run() {
                 ArrayList<User> users = acc.getUsers();
@@ -176,28 +175,20 @@ public class KontoGUI extends java.awt.Frame {
                 for (int i : select) {
                     selectUsers.add(users.get(i));
                 }
-                users = new ArrayList<User>();
-                for (int i = 0; i < 10; i++) {
-                    int index = new Random().nextInt(selectUsers.size());
-                    users.add(selectUsers.get(index));
-                }
-                for (User user : users) {
+                
+                for (User user : selectUsers) {
                     Thread t = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("Start");
-                            jtfOutput.append(user.performTest(new Random().nextBoolean(), acc));
-                            lbVal.setText(acc.getVal() + " Euro");
-                            System.out.println("End");
+                            for (int i = 0; i < 10; i++) {
+                                jtfOutput.append(user.performTest(new Random().nextBoolean(), acc));
+                                lbVal.setText(acc.getVal() + " Euro");
+                            }
                         }
                     });
+                    t.setName(user.getName());
+                    t.setPriority(Thread.MAX_PRIORITY);
                     t.start();
-                    try {
-                        t.join();
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(KontoGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
                 }
             }
 
@@ -208,21 +199,25 @@ public class KontoGUI extends java.awt.Frame {
     private void miAddAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miAddAccountActionPerformed
         acc = new Account(JOptionPane.showInputDialog("Name: "));
         for (Account account : accounts) {
-            if (account.getName().equals(acc.getName())) {
+            while (account.getName().equalsIgnoreCase(acc.getName())) {
                 acc.setName(acc.getName() + "Copy");
             }
         }
-
+        accounts.add(acc);
+        
         this.lbCurrentAcc.setText(acc.getName());
         this.lbVal.setText(acc.getVal() + " Euro");
         this.jtfOutput.setText("");
-        this.model.removeAllElements();
+        this.model.clear();
 
         for (Component menuComponent : menuAvailableAcc.getMenuComponents()) {
             ((JCheckBoxMenuItem) menuComponent).setSelected(false);
             ((JCheckBoxMenuItem) menuComponent).setEnabled(true);
         }
+        
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(acc.getName());
+        item.setName(acc.getName());
+        
         item.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent ie) {
@@ -245,19 +240,24 @@ public class KontoGUI extends java.awt.Frame {
     }//GEN-LAST:event_cbMiDefaultItemStateChanged
 
     private void checkBoxChanged(JCheckBoxMenuItem item) {
-        System.out.println(item.getName());
         for (Account account : accounts) {
             if (account.getName().equalsIgnoreCase(item.getName())) {
                 acc = account;
-
+                for (Component menuComponent : menuAvailableAcc.getMenuComponents()) {
+                    ((JCheckBoxMenuItem) menuComponent).setSelected(false);
+                    ((JCheckBoxMenuItem) menuComponent).setEnabled(true);
+                }
+                model.clear();
                 for (User user : acc.getUsers()) {
-                    model.addElement(user);
+                    this.model.addElement(user);
                 }
                 
                 this.lbCurrentAcc.setText(acc.getName());
                 this.lbVal.setText(acc.getVal() + " Euro");
                 this.jtfOutput.setText("");
-                this.model.removeAllElements();
+                
+                item.setEnabled(false);
+                item.setSelected(true);
             }
         }
     }

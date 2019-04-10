@@ -29,10 +29,10 @@ public class User{
                     
         if(i){
             acc.deposit(ammount);
-            return new String().format("%s deposited %f Euro \n", name,ammount);
+            return new String().format("%s deposited %.2f Euro \n", name,ammount);
         }else{
             acc.withdraw(ammount);
-            return new String().format("%s withdrawed %f Euro\n", name,ammount);
+            return new String().format("%s withdrawed %.2f Euro\n", name,ammount);
         }
     }
 
