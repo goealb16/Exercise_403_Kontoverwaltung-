@@ -50,6 +50,10 @@ public class Account {
     public double getVal() {
         return val;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
     
     
 

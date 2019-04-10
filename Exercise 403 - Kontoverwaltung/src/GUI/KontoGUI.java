@@ -7,6 +7,7 @@ import Account.User;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.DefaultListModel;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 
@@ -14,11 +15,13 @@ import javax.swing.JOptionPane;
 public class KontoGUI extends java.awt.Frame {
 private Account acc;
 private ArrayList<Account> accounts = new ArrayList<Account>();
+private DefaultListModel model = new DefaultListModel<>();
 
     public KontoGUI() {
         initComponents();
         this.acc = new Account("default");
         this.lbCurrentAcc.setText(acc.getName());
+        jList1.setModel(model);
     }
 
    
@@ -33,7 +36,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
         menuAvailableAcc = new javax.swing.JMenu();
         cbMiDefault = new javax.swing.JCheckBoxMenuItem();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        jtfOutput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         lbVal = new javax.swing.JLabel();
@@ -78,11 +81,11 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setBorder(javax.swing.BorderFactory.createTitledBorder("Log-Output"));
-        jTextArea1.setComponentPopupMenu(jPopupMenu2);
-        jScrollPane1.setViewportView(jTextArea1);
+        jtfOutput.setColumns(20);
+        jtfOutput.setRows(5);
+        jtfOutput.setBorder(javax.swing.BorderFactory.createTitledBorder("Log-Output"));
+        jtfOutput.setComponentPopupMenu(jPopupMenu2);
+        jScrollPane1.setViewportView(jtfOutput);
 
         jScrollPane2.setComponentPopupMenu(jPopupMenu1);
 
@@ -92,7 +95,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
 
         lbVal.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lbVal.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        lbVal.setText("00 , 00 Euro");
+        lbVal.setText("50 , 00 Euro");
         lbVal.setBorder(javax.swing.BorderFactory.createTitledBorder("Account"));
 
         jLabel2.setText("Current Account: ");
@@ -148,14 +151,19 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
     private void miAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miAddUserActionPerformed
         User c = new User(JOptionPane.showInputDialog("Name: "));
         acc.addUser(c);
+        model.addElement(c);
     }//GEN-LAST:event_miAddUserActionPerformed
 
     private void miPerformTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPerformTestActionPerformed
         ArrayList<User> users = acc.getUsers();
+        for (Object u : model.getListDataListeners()) {
+            if(users.contains((User)u)){
+                
+            }
+        }
         for (int i = 0; i < 10; i++) {
-            int index = new Random().nextInt(users.size()+1);
+            int index = new Random().nextInt(users.size());
             User u = users.get(index);
-            
             
         }
     }//GEN-LAST:event_miPerformTestActionPerformed
@@ -194,7 +202,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
     private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jtfOutput;
     private javax.swing.JLabel lbCurrentAcc;
     private javax.swing.JLabel lbVal;
     private javax.swing.JMenu menuAvailableAcc;

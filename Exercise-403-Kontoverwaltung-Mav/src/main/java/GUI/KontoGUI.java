@@ -1,27 +1,34 @@
-
-
 package GUI;
 
 import Account.Account;
 import Account.User;
 import java.awt.Component;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 
-
 public class KontoGUI extends java.awt.Frame {
-private Account acc;
-private ArrayList<Account> accounts = new ArrayList<Account>();
+
+    private Account acc;
+    private ArrayList<Account> accounts = new ArrayList<Account>();
+    private DefaultListModel model = new DefaultListModel<>();
 
     public KontoGUI() {
         initComponents();
         this.acc = new Account("default");
+        accounts.add(acc);
+
         this.lbCurrentAcc.setText(acc.getName());
+        jList1.setModel(model);
     }
 
-   
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -33,7 +40,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
         menuAvailableAcc = new javax.swing.JMenu();
         cbMiDefault = new javax.swing.JCheckBoxMenuItem();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        jtfOutput = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         lbVal = new javax.swing.JLabel();
@@ -68,6 +75,12 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
 
         cbMiDefault.setSelected(true);
         cbMiDefault.setText("Default");
+        cbMiDefault.setEnabled(false);
+        cbMiDefault.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbMiDefaultItemStateChanged(evt);
+            }
+        });
         menuAvailableAcc.add(cbMiDefault);
 
         jPopupMenu2.add(menuAvailableAcc);
@@ -78,11 +91,11 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setBorder(javax.swing.BorderFactory.createTitledBorder("Log-Output"));
-        jTextArea1.setComponentPopupMenu(jPopupMenu2);
-        jScrollPane1.setViewportView(jTextArea1);
+        jtfOutput.setColumns(20);
+        jtfOutput.setRows(5);
+        jtfOutput.setBorder(javax.swing.BorderFactory.createTitledBorder("Log-Output"));
+        jtfOutput.setComponentPopupMenu(jPopupMenu2);
+        jScrollPane1.setViewportView(jtfOutput);
 
         jScrollPane2.setComponentPopupMenu(jPopupMenu1);
 
@@ -92,7 +105,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
 
         lbVal.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lbVal.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        lbVal.setText("00 , 00 Euro");
+        lbVal.setText("50 , 00 Euro");
         lbVal.setBorder(javax.swing.BorderFactory.createTitledBorder("Account"));
 
         jLabel2.setText("Current Account: ");
@@ -140,7 +153,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
+
     private void exitForm(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_exitForm
         System.exit(0);
     }//GEN-LAST:event_exitForm
@@ -148,35 +161,107 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
     private void miAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miAddUserActionPerformed
         User c = new User(JOptionPane.showInputDialog("Name: "));
         acc.addUser(c);
+        model.addElement(c);
     }//GEN-LAST:event_miAddUserActionPerformed
 
     private void miPerformTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miPerformTestActionPerformed
-        ArrayList<User> users = acc.getUsers();
-        for (int i = 0; i < 10; i++) {
-            int index = new Random().nextInt(users.size()+1);
-            User u = users.get(index);
-            
-            
-        }
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                ArrayList<User> users = acc.getUsers();
+                ArrayList<User> selectUsers = new ArrayList<User>();
+                int[] select = jList1.getSelectedIndices();
+                for (int i : select) {
+                    selectUsers.add(users.get(i));
+                }
+                users = new ArrayList<User>();
+                for (int i = 0; i < 10; i++) {
+                    int index = new Random().nextInt(selectUsers.size());
+                    users.add(selectUsers.get(index));
+                }
+                for (User user : users) {
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("Start");
+                            jtfOutput.append(user.performTest(new Random().nextBoolean(), acc));
+                            lbVal.setText(acc.getVal() + " Euro");
+                            System.out.println("End");
+                        }
+                    });
+                    t.start();
+                    try {
+                        t.join();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(KontoGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
+            }
+
+        }).start();
+
     }//GEN-LAST:event_miPerformTestActionPerformed
 
     private void miAddAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miAddAccountActionPerformed
         acc = new Account(JOptionPane.showInputDialog("Name: "));
+        for (Account account : accounts) {
+            if (account.getName().equals(acc.getName())) {
+                acc.setName(acc.getName() + "Copy");
+            }
+        }
+
         this.lbCurrentAcc.setText(acc.getName());
-        this.lbVal.setText(acc.getVal()+" Euro");
-        
+        this.lbVal.setText(acc.getVal() + " Euro");
+        this.jtfOutput.setText("");
+        this.model.removeAllElements();
+
         for (Component menuComponent : menuAvailableAcc.getMenuComponents()) {
             ((JCheckBoxMenuItem) menuComponent).setSelected(false);
+            ((JCheckBoxMenuItem) menuComponent).setEnabled(true);
         }
-        
-        this.menuAvailableAcc.add(new JCheckBoxMenuItem(acc.getName())).setSelected(true);
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(acc.getName());
+        item.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                JCheckBoxMenuItem item = (JCheckBoxMenuItem) ie.getSource();
+                if (item.isEnabled()) {
+                    checkBoxChanged(item);
+                }
+            }
+        });
+        item.setSelected(true);
+        item.setEnabled(false);
+        this.menuAvailableAcc.add(item);
     }//GEN-LAST:event_miAddAccountActionPerformed
 
-    private void checkBoxChanged(JCheckBoxMenuItem item){
-        
+    private void cbMiDefaultItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbMiDefaultItemStateChanged
+        JCheckBoxMenuItem item = (JCheckBoxMenuItem) evt.getSource();
+        if (item.isEnabled()) {
+            checkBoxChanged(item);
+        }
+    }//GEN-LAST:event_cbMiDefaultItemStateChanged
+
+    private void checkBoxChanged(JCheckBoxMenuItem item) {
+        System.out.println(item.getName());
+        for (Account account : accounts) {
+            if (account.getName().equalsIgnoreCase(item.getName())) {
+                acc = account;
+
+                for (User user : acc.getUsers()) {
+                    model.addElement(user);
+                }
+                
+                this.lbCurrentAcc.setText(acc.getName());
+                this.lbVal.setText(acc.getVal() + " Euro");
+                this.jtfOutput.setText("");
+                this.model.removeAllElements();
+            }
+        }
     }
-    
-    
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -194,7 +279,7 @@ private ArrayList<Account> accounts = new ArrayList<Account>();
     private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jtfOutput;
     private javax.swing.JLabel lbCurrentAcc;
     private javax.swing.JLabel lbVal;
     private javax.swing.JMenu menuAvailableAcc;
