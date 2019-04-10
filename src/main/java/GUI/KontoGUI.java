@@ -190,6 +190,7 @@ public class KontoGUI extends java.awt.Frame {
                     t.setPriority(Thread.MAX_PRIORITY);
                     t.start();
                 }
+                
             }
 
         }).start();

@@ -17,10 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Alex
  */
-@RunWith(value = Parameterized.class) 
 public class AccountTest {
-    
-    
     
     public AccountTest() {
     }
@@ -45,26 +42,46 @@ public class AccountTest {
      * Test of withdraw method, of class Account.
      */
     @Test
-    public void testWithdraw() {
-        System.out.println("withdraw");
-        double val = 0.0;
-        Account instance = null;
-        instance.withdraw(val);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testWithdraw1() {
+        double ammount = 20.0;
+        Account instance = new Account(20);
+        instance.withdraw(ammount);
     }
 
+    @Test
+    public void testWithdraw2() {
+        double ammount = 20.0;
+        Account instance = new Account(20);
+        instance.withdraw(ammount);
+    }
+    
+    @Test
+    public void testWithdraw3() {
+        double ammount = 20.0;
+        Account instance = new Account(30);
+        instance.withdraw(ammount);
+    }
     /**
      * Test of deposit method, of class Account.
      */
     @Test
-    public void testDeposit() {
-        System.out.println("deposit");
-        double val = 0.0;
-        Account instance = null;
-        instance.deposit(val);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testDeposit1() {
+        double ammount = 20.0;
+        Account instance = new Account(0);
+        instance.deposit(ammount);
     }
-
+    
+    @Test
+    public void testDeposit2() {
+        double ammount = 20.0;
+        Account instance = new Account(10);
+        instance.deposit(ammount);
+    }
+    
+    @Test
+    public void testDeposit3() {
+        double ammount = 20.0;
+        Account instance = new Account(-10);
+        instance.deposit(ammount);
+    }
 }
